@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python ../../skillops/triage.py new:*)",
+      "Bash(python ../../skillops/triage.py show:*)"
+    ],
+    "deny": [
+      "Edit",
+      "Write",
+      "NotebookEdit",
+      "WebFetch",
+      "WebSearch",
+      "Bash(git:*)",
+      "Bash(rm:*)",
+      "Bash(curl:*)",
+      "Bash(env:*)",
+      "Bash(printenv:*)",
+      "Bash(cat .switch:*)"
+    ]
+  }
+}
