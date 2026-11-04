@@ -1,0 +1,30 @@
+# Switch SkillOps: the Mattermost room the SkillOps agents work in.
+#
+# Room-only on purpose: create the agent first in Switch Console
+# (Your Agents -> New agent, see README), then import this file
+# (Templates -> Import template) and use it. Switch Console v0.40.1's template
+# form cannot pick a provider for a new agent on a Windows managed machine,
+# while the New agent form can.
+# Language reference: docs/TEMPLATES.md in sandbox-quantum/switch.
+version: 1
+
+params:
+  bridge:
+    type: bridge
+    default: [Mattermost, $first]
+
+room:
+  name: skillops-triage
+  description: Bug reports and feature requests, worked by SkillOps agents with human approval.
+  bridge: "{bridge}"
+  agents: ["skillops-manager"]
+  users: ["{$creator}"]
+  instructions: |
+    This room is where teammates bring bug reports and feature requests to
+    SkillOps. Address skillops-manager with the request.
+    Agents in this room: reply here, one thread per request, narrate
+    progress, and fail loud. Never merge, deploy, or delete anything
+    without an explicit approval message from a person in this room.
+
+kickoff: |
+  @skillops-manager hi. Introduce yourself in two lines, then list the files in your working directory.

@@ -1,0 +1,4 @@
+# Switch Console writes agent credentials here (it also adds its own .gitignore)
+.switch/
+.env
+__pycache__/
