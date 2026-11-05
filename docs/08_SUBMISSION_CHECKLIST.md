@@ -29,7 +29,7 @@
 - [x] Sample task and reset instructions included.
 - [x] Tests and exact outcomes documented.
 - [x] Known limitations and manual steps documented.
-- [ ] License and third-party notices included.
+- [x] License and third-party notices included. *(MIT; no vendored third-party code)*
 
 ## Technical quality
 

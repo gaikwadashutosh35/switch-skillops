@@ -163,6 +163,10 @@ state/, workspace/  runtime data (gitignored)
 - **No cancellation command mid-work.** Use Switch's `!interrupt @skillops-coder`, then `REJECT SKO-xxxx` once it awaits a decision.
 - **Bare orders skip triage.** "Deploy to production" was refused by the manager directly rather than routed through triage's high-risk workflow, which is covered by unit tests.
 
+## License
+
+[MIT](LICENSE). SkillOps uses only the Python standard library and vendors no third-party code. Switch, Mattermost and Claude Code are installed separately under their own licenses.
+
 ## Links
 
 - Hackathon: https://www.wemakedevs.org/hackathons/switch
