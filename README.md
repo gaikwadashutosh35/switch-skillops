@@ -156,8 +156,9 @@ state/, workspace/  runtime data (gitignored)
 ## Known limitations
 
 - **One demo repository.** The coder works on `workspace/demo-app`, not on a project you choose, and merges are local; there is no GitHub pull request.
-- **Windows setup steps.** Switch Console 0.40.1's template form could not create a new agent on Windows, so agents are created in the New agent form and the template only creates the room ([ADR-005](docs/DECISIONS.md)).
-- **Mattermost bridge after a restart.** If Mattermost comes up after the Switch server (for example after restarting Docker), the bridge crashes and does not retry. Fix: *Admin → Status →* turn the Mattermost switch off and on.
+- **Windows setup steps.** Switch Console 0.40.1's template form could not create a new agent on Windows, so agents are created in the New agent form and the template only creates the room ([ADR-005](docs/DECISIONS.md); reported upstream as [switch#1511](https://github.com/sandbox-quantum/switch/issues/1511)).
+- **Mattermost bridge after a restart.** If Mattermost comes up after the Switch server (for example after restarting Docker), the bridge crashes and does not retry. Fix: *Admin → Status →* turn the Mattermost switch off and on. Reported upstream as [switch#1510](https://github.com/sandbox-quantum/switch/issues/1510).
+- **Agent directory is fixed per room session.** Editing a managed agent's Directory does not move a room session it already has, so set it when creating the agent; to fix a wrong one, recreate the agent. Reported upstream as [switch#1512](https://github.com/sandbox-quantum/switch/issues/1512).
 - **The approver's name is reported by the agent.** `work.py decide` refuses agent names and requires the exact phrase, but it trusts the manager to pass the sender correctly.
 - **Allow rules need a trusted folder.** Each agent's deny rules were verified to block commands (see [docs/LOCAL_TEST_RESULTS.md](docs/LOCAL_TEST_RESULTS.md)), but Claude Code ignores a project's allow rules until the folder is trusted; until then Auto mode decides on unlisted commands.
 - **No cancellation command mid-work.** Use Switch's `!interrupt @skillops-coder`, then `REJECT SKO-xxxx` once it awaits a decision.
