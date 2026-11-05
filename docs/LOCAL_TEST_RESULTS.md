@@ -110,6 +110,19 @@ From `git clone https://github.com/gaikwadashutosh35/switch-skillops.git` at `3d
 
 Not covered by this check: the Switch Console, agent and room steps (README steps 2–5), which need the desktop app.
 
+## Debugging skills (2026-11-05)
+
+Loading, checked headless (`claude -p`) in each folder: `agents/coder` lists `debug`, `agents/reviewer` lists `bug-hunt`, the repo root lists `skillops-troubleshoot`.
+
+Live room run after `reset-demo` and `!reset` of all three agents, same bug report as the demo (SKO-0001, 08:07–08:08 UTC):
+
+| Skill | Used? | Evidence (agent's Claude Code transcript) |
+|---|---|---|
+| `bug-hunt` (reviewer) | Yes | `Skill` call, then a search for every caller of `initials`/`save_profile`; review notes list the traced inputs (`''`, whitespace only, `'Zoë'`, `'李'`, emoji, `'  Ada   Lovelace '`, long value) and two non-blocking findings outside the criteria (stale docstring, `display_name=None` raises `AttributeError`). |
+| `debug` (coder) | No | No `Skill` call. Its brief uses it only when the cause is not obvious; this bug was obvious. The coder still fixed the root (`split(" ")` → `split()`, commit `9f373a5`), which also covers the double-space case. |
+
+Not verified: the coder's `debug` skill in a live run; it needs a bug whose cause is not obvious.
+
 ### Not used
 
 A WSL Ubuntu SSH host (`skillops-wsl`) was set up while diagnosing the provider problem. The current docs say Windows needs no WSL, and the working path above does not use it.

@@ -23,6 +23,8 @@ Start from what the person sees, find the evidence, then apply the fix. Every fi
 1. Did the message start with `@agent-name`? A message that addresses nobody is ignored.
 2. Check the thread under your message: replies and permission cards often land there.
 3. Server log shows `Bridge … crashed` and no later `Started collaboration bridge`: Mattermost came up after the server (Docker restart, Admin → Restart). Fix: **Admin → Status**, turn Mattermost off and on. ([switch#1510](https://github.com/sandbox-quantum/switch/issues/1510))
+4. Every room stopped at once, with no bridge crash: usually a network change such as a VPN reconnect. Switch Console recovers within about a minute; restart Switch Console to fix it at once.
+5. The agent went quiet after someone declined a permission card: it is waiting for an answer in the room. Reply to it there.
 
 **An agent says its brief or CLAUDE.md is missing, or its folder is empty.** Its room session started in the wrong directory, and editing the agent's Directory does not move it. Fix: delete the agent, create it again with the right Directory, then `!invite-agent @name` in the room. ([switch#1512](https://github.com/sandbox-quantum/switch/issues/1512))
 
@@ -44,6 +46,10 @@ Start from what the person sees, find the evidence, then apply the fix. Every fi
 
 **An agent keeps old context after a reset.** Run `python skillops/work.py reset-demo`, then `!reset @skillops-manager`, `!reset @skillops-coder`, `!reset @skillops-reviewer`.
 
-## 3. Report
+## 3. Not listed here
+
+Check Switch's official [Troubleshooting](https://docs.switchagents.ai/switch-rooms/resources/troubleshooting) page. Two of its fixes did not work for us: restarting the server did not bring back a crashed bridge (turn Mattermost off and on in Admin → Status instead), and changing a managed agent's Directory did not move its existing room session (recreate the agent).
+
+## 4. Report
 
 Say the symptom, the evidence you found (file, log line, `Refused:` text), the cause, and the fix you applied or recommend. If the evidence does not match any case above, say so; do not guess.
