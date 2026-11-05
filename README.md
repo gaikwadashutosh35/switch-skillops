@@ -61,6 +61,12 @@ Without Switch there is no room, no handoffs between agents and no approval card
 
 Each agent's allowed and denied commands are in its `.claude/settings.json`. All three use Auto mode on and Bypass permissions off, and answer "Me and my agents".
 
+Debugging skills (Claude Code skills, no extra commands):
+
+- `skillops-coder` → [debug](agents/coder/.claude/skills/debug/SKILL.md): reproduce, one hypothesis at a time, find every caller, fix at the root.
+- `skillops-reviewer` → [bug-hunt](agents/reviewer/.claude/skills/bug-hunt/SKILL.md): trace edge-case inputs through the change and its other callers before a verdict.
+- You, in Claude Code at the repo root → [skillops-troubleshoot](.claude/skills/skillops-troubleshoot/SKILL.md): symptom → evidence → fix for silent agents, the Mattermost bridge, wrong agent folders and `work.py` refusals.
+
 ## Room setup
 
 One Mattermost channel, `skillops-triage`, created by the room template [switch/skillops.template.yaml](switch/skillops.template.yaml). It adds the three agents and you, sets the room instructions (how to start work and how to decide), and posts a kickoff that wakes the manager.
@@ -144,7 +150,8 @@ python -m unittest
 ## Repository layout
 
 ```text
-agents/           one folder per Switch agent: CLAUDE.md brief + .claude/settings.json allowlist
+agents/           one folder per Switch agent: CLAUDE.md brief, .claude/settings.json allowlist, .claude/skills
+.claude/skills/   skillops-troubleshoot, for debugging the setup
 skillops/         triage.py (triage, risk, routing, state) and work.py (gated workflow steps)
 tests/            unit tests for both
 demo/seed/        the demo app with its bug; reset-demo copies it to workspace/demo-app
