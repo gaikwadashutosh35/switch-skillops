@@ -2,7 +2,7 @@
 
 ## Official deliverables
 
-- [ ] Public project repository.
+- [x] Public project repository. *(https://github.com/gaikwadashutosh35/switch-skillops)*
 - [ ] Short demo video showing the workflow running.
 - [x] README explains which agents are connected.
 - [x] README explains how the Mattermost channel/room is configured.

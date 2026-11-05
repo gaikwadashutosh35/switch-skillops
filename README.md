@@ -79,8 +79,8 @@ Verified on Windows 11 with Switch Console 0.40.1, switch-core 0.31.0, bundled M
 ### 1. Get the code and reset the demo
 
 ```bash
-git clone <this repository>
-cd switch-skillops-hackathon-kit
+git clone https://github.com/gaikwadashutosh35/switch-skillops.git
+cd switch-skillops
 python -m unittest
 python skillops/work.py reset-demo
 ```
