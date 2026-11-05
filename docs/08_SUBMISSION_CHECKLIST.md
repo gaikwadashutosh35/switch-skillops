@@ -4,43 +4,43 @@
 
 - [ ] Public project repository.
 - [ ] Short demo video showing the workflow running.
-- [ ] README explains which agents are connected.
-- [ ] README explains how the Mattermost channel/room is configured.
-- [ ] README explains how to run the project.
+- [x] README explains which agents are connected.
+- [x] README explains how the Mattermost channel/room is configured.
+- [x] README explains how to run the project.
 - [ ] Submit before the official deadline: November 7, 2026, 11:59 PM IST (re-check live page).
 
 ## Product and Switch proof
 
-- [ ] Mattermost is used as the actual team chat.
-- [ ] Switch is installed/configured through the documented supported route.
-- [ ] At least one AI agent joins the room through Switch.
-- [ ] Human request and agent response are visible in the same room.
-- [ ] SkillOps workflow uses shared room context for triage, handoff and approval.
-- [ ] README explains what Switch does and why it is essential.
-- [ ] No direct Mattermost webhook is substituted for the central Switch integration.
+- [x] Mattermost is used as the actual team chat.
+- [x] Switch is installed/configured through the documented supported route.
+- [x] At least one AI agent joins the room through Switch.
+- [x] Human request and agent response are visible in the same room.
+- [x] SkillOps workflow uses shared room context for triage, handoff and approval.
+- [x] README explains what Switch does and why it is essential.
+- [x] No direct Mattermost webhook is substituted for the central Switch integration.
 
 ## Reproducibility
 
 - [ ] Fresh clone tested.
-- [ ] Prerequisites and versions documented.
-- [ ] `.env.example` contains placeholders only.
-- [ ] No secrets committed.
-- [ ] Setup instructions are exact and current.
-- [ ] Sample task and reset instructions included.
-- [ ] Tests and exact outcomes documented.
-- [ ] Known limitations and manual steps documented.
+- [x] Prerequisites and versions documented.
+- [x] `.env.example` contains placeholders only.
+- [ ] No secrets committed. *(scanned before each commit; re-check before making the repo public)*
+- [ ] Setup instructions are exact and current. *(verified on Windows only; not yet from a fresh clone)*
+- [x] Sample task and reset instructions included.
+- [x] Tests and exact outcomes documented.
+- [x] Known limitations and manual steps documented.
 - [ ] License and third-party notices included.
 
 ## Technical quality
 
-- [ ] Routing unit tests.
-- [ ] Workflow state transition tests.
-- [ ] Failure/timeout behavior.
-- [ ] Duplicate message behavior or documented limitation.
-- [ ] Human approval gate tested.
-- [ ] No arbitrary shell execution from chat input.
-- [ ] No auto-merge or deployment.
-- [ ] Logs redact secrets.
+- [x] Routing unit tests.
+- [x] Workflow state transition tests.
+- [ ] Failure/timeout behavior. *(timeouts and refusals in code; refusals tested, timeouts not)*
+- [x] Duplicate message behavior or documented limitation.
+- [x] Human approval gate tested.
+- [x] No arbitrary shell execution from chat input. *(deny rules verified headless per agent; see LOCAL_TEST_RESULTS)*
+- [x] No auto-merge or deployment.
+- [x] Logs redact secrets.
 
 ## Presentation
 

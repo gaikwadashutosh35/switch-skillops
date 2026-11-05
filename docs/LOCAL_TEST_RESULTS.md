@@ -85,7 +85,20 @@ Findings:
 - The agents hand work to each other with Switch targeted messages; every step and its evidence is in the room.
 - Two gates hold: SkillOps code refuses anything but `APPROVE SKO-xxxx merge` from a person at the right stage, and Claude Code's `ask` permission surfaces in Mattermost as a Switch approval card.
 - The first live run found a bug in SkillOps itself: test runs wrote `__pycache__` into the demo repo, so a correct fix could never reach review. The coder stopped and reported it. Fixed with a seed `.gitignore` and bytecode-free test runs, covered by a new test.
-- Still not verified: whether `deny` rules in the agents' `.claude/settings.json` are enforced (no agent tried a denied command).
+- Deny rules: see Phase 5 below.
+
+## Phase 5 — deny rules (2026-11-05)
+
+Managed sessions start Claude Code with `--permission-mode auto` and a `--settings` that only adds `allow: mcp__switch`; nothing limits which settings files load, so each agent's `.claude/settings.json` applies. Checked headless with `claude -p … --permission-mode auto` in each agent's directory:
+
+| Agent | Asked to run | Rule | Result |
+|---|---|---|---|
+| manager | `git status` | deny `Bash(git:*)` | "Permission to use Bash with command git status has been denied." |
+| manager (control) | `python --version` | none | ran: `Python 3.13.7` |
+| coder | `printenv HOME` | deny `Bash(printenv:*)` | "Permission to use Bash with command printenv HOME has been denied." |
+| reviewer | create `perm-test.txt` with Write | deny `Write` | Write tool not available; no file created |
+
+Caveat: Claude Code ignores a project's **allow** rules until the folder is trusted ("Ignoring 4 permissions.allow entries … this workspace has not been trusted"); deny rules apply regardless. In the live runs the agents' allowed commands ran under Auto mode.
 
 ### Not used
 

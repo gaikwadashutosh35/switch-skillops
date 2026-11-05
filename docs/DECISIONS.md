@@ -36,3 +36,17 @@ Use this file to record decisions as they are made. Do not treat proposed decisi
 **Decision:** Create `skillops-manager` in Switch Console's New agent form with its Directory set to `agents/manager` at creation. Create the `skillops-triage` room, its instructions and kickoff from the room-only template `switch/skillops.template.yaml`. The agent's brief lives in `agents/manager/CLAUDE.md`.  
 **Reason:** On a local server Switch Console runs, agents are managed agents. Console 0.40.1's template form offered no usable provider for a new agent on Windows, while the New agent form did. A managed agent's existing room session keeps the directory it started with even after the agent is edited (`withDefinitionOf` in `console/packages/agent-providers/src/host/agent-host.ts`), so the directory must be right when the agent is created.  
 **Trade-off:** Setup is two Console steps instead of one template run; the README must list the agent form's values exactly.
+
+## ADR-006 — Three Switch agents instead of one agent with phases
+
+**Status:** Accepted (verified in the live run of SKO-0001, 2026-11-05)  
+**Decision:** Run the manager, coder and reviewer as three Switch agents, each with its own working directory, brief and allowlist, handing work to each other with Switch targeted messages. This supersedes ADR-003's single-agent start.  
+**Reason:** Switch supports several agents in a room natively, and each appears as its own Mattermost bot, so handoffs are visible. The reviewer runs in a separate session that did not write the change. Switch's task-delegation protocol is marked "present but not ready for use" (`docs/official/internals/agent-protocol.md`), so handoffs use targeted messages.  
+**Trade-off:** Three Claude Code sessions per run, and three agents to create in Switch Console.
+
+## ADR-007 — Agents propose, code decides
+
+**Status:** Accepted  
+**Decision:** Agents read free text and draft; `skillops/triage.py` and `skillops/work.py` decide risk, workflow and every state change, run the tests and git with fixed arguments, and gate the merge on an exact `APPROVE SKO-xxxx merge` from a person. The manager's merge command is also set to `ask`, which Switch shows as an approval card.  
+**Reason:** Gates that live only in a prompt can be talked around; gates in code with unit tests cannot. Two independent gates (SkillOps state and the Switch/Claude Code permission card) protect the one consequential action.  
+**Trade-off:** The workflow is fixed to one demo repository and a fixed test command; extending it means editing code, not prompts.

@@ -1,77 +1,67 @@
-# 07 — Demo script (3–4 minutes)
+# 07 — Demo script (about 4 minutes)
 
-## Demo objective
-
-Show one human and one AI agent completing a real engineering task together in a Mattermost room through Switch. Make Switch central and visible.
+Every message below was sent in the verified run of 2026-11-05 (see `LOCAL_TEST_RESULTS.md`). Send each one as its own message in `skillops-triage`.
 
 ## Before recording
 
-- Start Switch and Mattermost using the documented local setup.
-- Confirm the agent is connected and in `skillops-triage`.
-- Use a clean demo repository and a known reproducible bug.
-- Ensure tests run locally.
-- Clear unrelated messages and sensitive information.
-- Prepare a fallback recording only as backup; the primary demo should show the real running workflow.
-- Never show API keys, tokens or private data.
+1. `python skillops/work.py reset-demo`: clears requests and recreates `workspace/demo-app`.
+2. Switch Console shows the local server *Running*; Admin → Status shows Mattermost on. If the server or Docker restarted, turn the Mattermost switch off and on once.
+3. In the room, reset the agents so each starts from its brief:
+   ```
+   !reset @skillops-manager
+   !reset @skillops-coder
+   !reset @skillops-reviewer
+   ```
+4. Close anything showing tokens, `.switch/` files or other private data.
 
 ## Run of show
 
-### 0:00–0:25 — Problem
-Show Mattermost. Explain: bug reports are usually separated from coding agents, decisions and test evidence.
+### 0:00–0:20 — The problem
+Show the Mattermost room and its member list (three bots and you). Bug reports, coding agents, test evidence and approvals usually live in different places; here they share one room through Switch.
 
-### 0:25–0:50 — Human request
-Post:
+### 0:20–0:50 — Request and triage
+```
+@skillops-manager The settings page crashes when I save a profile with an empty optional display name. Steps: open Settings, clear Display name, click Save. Expected: it saves. Actual: a 500 error. Don't merge anything without my approval.
+```
+Point out the reply: `SKO-0001 · bug · risk low · TRIAGED`, acceptance criteria, workflow `bug-tdd` and **why** it was chosen.
 
-> @SkillOps The profile settings form crashes when an optional display name is empty. Reproduce it, add a regression test, fix it, and show the test results. Do not merge anything without my approval.
+Optional, 20 seconds: show clarification with `@skillops-manager Can we add a CSV export of the profile?`. It asks for acceptance criteria instead of guessing.
 
-Point out that the request originates in the Mattermost room.
+### 0:50–1:50 — Handoffs and evidence
+```
+@skillops-manager start SKO-0001
+```
+Show, in order: the manager's `PLANNED` reply and its handoff to skillops-coder; the coder's failing regression test (`exit 1`, "bug reproduced"); the fix and passing tests (`exit 0`, changed files); the handoff to skillops-reviewer; the reviewer's verdict with file references and its own test run.
 
-### 0:50–1:25 — Triage and workflow selection
-Show the manager response:
-- task classified as bug,
-- acceptance criteria,
-- missing information (if any),
-- selected debugging/TDD workflow,
-- reason for selection.
+### 1:50–2:50 — The human decides
+First show that a casual reply does not count:
+```
+@skillops-manager looks good, merge it
+```
+It is refused, and nothing is merged. Then:
+```
+@skillops-manager APPROVE SKO-0001 merge
+```
+Show the **Permission needed** card that Switch posts in the room for the merge. Click **Allow once**.
 
-### 1:25–2:20 — Implementation and QA
-Show the agent working through Switch:
-- branch/worktree created,
-- regression test added,
-- code changed,
-- tests executed,
-- QA report references actual files and command output.
+### 2:50–3:30 — Result
+Show the final `COMPLETED` report with the merge commit. Optionally show `git -C workspace/demo-app log --oneline --graph` in a terminal: the fix commit and the merge "approved by user".
 
-Do not speed past a fake result. Show a real test command/output.
-
-### 2:20–3:00 — Human decision
-Show QA summary and explicit approval request. Choose “request changes” once if time allows, or approve the specific next step. Demonstrate that no merge/deploy happens automatically.
-
-### 3:00–3:35 — Result and Switch value
-Show final status, branch/PR link if available, and the room history. Explain that Switch connected the agent to the shared room and carried the work context between the human and agent.
+### 3:30–4:00 — Close
+- Switch put three agents and a person in one room, carried the handoffs and showed the approval card.
+- The code, not the agents, decides risk, state and when a merge is allowed.
+- Repository link, `python -m unittest` (41 tests), known limitations in the README.
 
 ## Narration points
 
-- “Mattermost is the team workspace; Switch brings the agent into this room.”
-- “The router selects a workflow based on the task, rather than loading every skill for every request.”
-- “The coding phase reports evidence, and the QA phase checks it against acceptance criteria.”
-- “The human remains in control of consequential actions.”
-
-## Final slide / closing
-
-Show:
-- GitHub repository URL.
-- Setup command/README.
-- Supported agent and room configuration.
-- Test status.
-- Known limitations.
+- "The manager, coder and reviewer are three separate Switch agents; you can see each one in the member list."
+- "Risk and the workflow come from code, from my own words; the agent can't lower them."
+- "A casual 'looks good' isn't an approval. Only `APPROVE SKO-0001 merge` from a person is, and the merge still stops at Switch's approval card."
 
 ## Demo quality checklist
 
-- [ ] No fabricated UI or fake agent response.
-- [ ] Switch participation is visible.
-- [ ] Human request and human approval are visible.
-- [ ] A real task is completed.
-- [ ] Test evidence is readable.
-- [ ] No secrets or private data.
-- [ ] Demo fits within a few minutes.
+- [ ] No fabricated UI or agent responses: record the real run.
+- [ ] The three bots are visible as room members.
+- [ ] Request, evidence (exit codes) and human decision are readable.
+- [ ] The refused "looks good" and the approval card are both shown.
+- [ ] No secrets or private data on screen.
