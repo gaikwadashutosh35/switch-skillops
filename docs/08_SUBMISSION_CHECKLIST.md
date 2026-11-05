@@ -21,7 +21,7 @@
 
 ## Reproducibility
 
-- [ ] Fresh clone tested.
+- [ ] Fresh clone tested. *(code part passed from the public repo: tests, reset-demo; Console/agent/room steps not repeated)*
 - [x] Prerequisites and versions documented.
 - [x] `.env.example` contains placeholders only.
 - [ ] No secrets committed. *(scanned before each commit; re-check before making the repo public)*

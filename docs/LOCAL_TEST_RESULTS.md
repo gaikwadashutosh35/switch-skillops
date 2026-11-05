@@ -100,6 +100,16 @@ Managed sessions start Claude Code with `--permission-mode auto` and a `--settin
 
 Caveat: Claude Code ignores a project's **allow** rules until the folder is trusted ("Ignoring 4 permissions.allow entries … this workspace has not been trusted"); deny rules apply regardless. In the live runs the agents' allowed commands ran under Auto mode.
 
+## Fresh clone (2026-11-05)
+
+From `git clone https://github.com/gaikwadashutosh35/switch-skillops.git` at `3d7ceeb`, in an empty folder, without `PYTHONDONTWRITEBYTECODE`:
+
+- `python -m unittest` → `Ran 41 tests … OK`
+- `python skillops/work.py reset-demo` → `workspace/demo-app` with one commit on `main`, demo tests OK, working tree clean
+- The clone's own `git status` stays clean (runtime `state/`, `workspace/` and `__pycache__/` are ignored)
+
+Not covered by this check: the Switch Console, agent and room steps (README steps 2–5), which need the desktop app.
+
 ### Not used
 
 A WSL Ubuntu SSH host (`skillops-wsl`) was set up while diagnosing the provider problem. The current docs say Windows needs no WSL, and the working path above does not use it.
