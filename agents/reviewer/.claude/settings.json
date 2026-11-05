@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "additionalDirectories": ["../../workspace/demo-app"],
+    "allow": [
+      "Bash(python ../../skillops/triage.py show:*)",
+      "Bash(python ../../skillops/work.py review:*)",
+      "Bash(git -C ../../workspace/demo-app diff:*)",
+      "Bash(git -C ../../workspace/demo-app log:*)",
+      "Bash(git -C ../../workspace/demo-app show:*)",
+      "Read(../../workspace/demo-app/**)"
+    ],
+    "deny": [
+      "Edit",
+      "Write",
+      "NotebookEdit",
+      "Bash(python ../../skillops/work.py start:*)",
+      "Bash(python ../../skillops/work.py check:*)",
+      "Bash(python ../../skillops/work.py decide:*)",
+      "Bash(python ../../skillops/work.py merge:*)",
+      "Bash(git -C ../../workspace/demo-app commit:*)",
+      "Bash(git -C ../../workspace/demo-app checkout:*)",
+      "Bash(git -C ../../workspace/demo-app merge:*)",
+      "Bash(git -C ../../workspace/demo-app reset:*)",
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(rm:*)",
+      "Bash(curl:*)",
+      "Bash(env:*)",
+      "Bash(printenv:*)",
+      "WebFetch",
+      "WebSearch"
+    ]
+  }
+}

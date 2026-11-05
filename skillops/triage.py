@@ -145,6 +145,11 @@ def load(request_id, state_dir=STATE_DIR):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def save(record, state_dir=STATE_DIR):
+    record = {k: v for k, v in record.items() if k != "duplicate"}
+    (Path(state_dir) / f"{record['id']}.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
+
+
 def submit(draft_text, state_dir=STATE_DIR, request_id=None):
     """Triage a draft as a new request, or as an answer to `request_id`."""
     draft = parse_draft(draft_text)
@@ -167,7 +172,7 @@ def submit(draft_text, state_dir=STATE_DIR, request_id=None):
     record.update(draft)
     record.update(result)
     transition(record, "NEEDS_CLARIFICATION" if result["questions"] else "TRIAGED")
-    (state_dir / f"{record['id']}.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
+    save(record, state_dir)
     return {**record, "duplicate": False}
 
 

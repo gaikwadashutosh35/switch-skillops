@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(python ../../skillops/triage.py new:*)",
-      "Bash(python ../../skillops/triage.py show:*)"
+      "Bash(python ../../skillops/triage.py show:*)",
+      "Bash(python ../../skillops/work.py start:*)",
+      "Bash(python ../../skillops/work.py decide:*)"
+    ],
+    "ask": [
+      "Bash(python ../../skillops/work.py merge:*)"
     ],
     "deny": [
       "Edit",
@@ -10,6 +15,8 @@
       "NotebookEdit",
       "WebFetch",
       "WebSearch",
+      "Bash(python ../../skillops/work.py check:*)",
+      "Bash(python ../../skillops/work.py review:*)",
       "Bash(git:*)",
       "Bash(rm:*)",
       "Bash(curl:*)",

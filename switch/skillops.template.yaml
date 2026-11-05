@@ -17,11 +17,14 @@ room:
   name: skillops-triage
   description: Bug reports and feature requests, worked by SkillOps agents with human approval.
   bridge: "{bridge}"
-  agents: ["skillops-manager"]
+  agents: ["skillops-manager", "skillops-coder", "skillops-reviewer"]
   users: ["{$creator}"]
   instructions: |
     This room is where teammates bring bug reports and feature requests to
-    SkillOps. Address skillops-manager with the request.
+    SkillOps. Address skillops-manager with the request; it triages it.
+    Say "start SKO-xxxx" to have skillops-coder implement it and
+    skillops-reviewer review it. Decide with "APPROVE SKO-xxxx merge",
+    "CHANGES SKO-xxxx: <what>" or "REJECT SKO-xxxx".
     Agents in this room: reply here, one thread per request, narrate
     progress, and fail loud. Never merge, deploy, or delete anything
     without an explicit approval message from a person in this room.

@@ -59,6 +59,34 @@ Findings:
 - The `human-direction` route for high-risk requests is covered by unit tests only; live, the agent declined the bare deploy order before triage.
 - Not yet verified: whether a managed agent enforces `agents/manager/.claude/settings.json` (it ran only allowed commands, so nothing was denied).
 
+## Phase 4 — coding, QA and approval (2026-11-05)
+
+Unit tests (run without `PYTHONDONTWRITEBYTECODE`, as the agents run): `python -m unittest` → `Ran 41 tests … OK`.
+
+Agents: `skillops-manager`, `skillops-coder`, `skillops-reviewer`, each created in the New agent form with its `agents/<role>` directory, all in `skillops-triage`. Demo reset first: `python skillops/work.py reset-demo`.
+
+Live run (room read through Mattermost, record from `state/requests/SKO-0001.json`, repo from `workspace/demo-app`):
+
+| Time | Who | What happened |
+|---|---|---|
+| 09:31 | user → manager | Bug report; triaged `SKO-0001`, bug, low risk, `bug-tdd` |
+| 09:32 | user → manager | `start SKO-0001` → `PLANNED` on branch `sko-0001`; manager hands off to skillops-coder |
+| 09:33 | coder | Regression test first; `check --expect fail` → exit 1, "bug reproduced" |
+| 09:34 | coder | One-line fix (`split(" ")` → `split()`), commit `445d98f`; `check` → exit 0, `QA_REVIEW`; hands off to skillops-reviewer |
+| 09:34 | reviewer | Verdict pass, tests re-run exit 0, notes reference `profile_settings.py:10` and `test_profile.py:16`; `AWAITING_HUMAN_APPROVAL` |
+| 09:38 | user | "looks good, merge it" → refused: "not a decision. Reply exactly `APPROVE SKO-0001 merge` …"; nothing merged |
+| 09:41 | user | `APPROVE SKO-0001 merge` → `APPROVED`, recorded with sender and Switch message id |
+| 09:41 | Switch | The manager's merge command hit its `ask` rule: a **Permission needed** card (`A1`: Allow once / Allow for this session / Decline) was posted in the room |
+| 09:44 | user, manager | Allow once → merge commit `6e86ad8` on `main`; `COMPLETED` |
+
+Checked independently before approving: the diff was one line plus one test, `main` still had the bug, the tree was clean, and 3/3 demo tests passed on the branch. After the merge: `main` has the fix, 3/3 tests pass, tree clean.
+
+Findings:
+- The agents hand work to each other with Switch targeted messages; every step and its evidence is in the room.
+- Two gates hold: SkillOps code refuses anything but `APPROVE SKO-xxxx merge` from a person at the right stage, and Claude Code's `ask` permission surfaces in Mattermost as a Switch approval card.
+- The first live run found a bug in SkillOps itself: test runs wrote `__pycache__` into the demo repo, so a correct fix could never reach review. The coder stopped and reported it. Fixed with a seed `.gitignore` and bytecode-free test runs, covered by a new test.
+- Still not verified: whether `deny` rules in the agents' `.claude/settings.json` are enforced (no agent tried a denied command).
+
 ### Not used
 
 A WSL Ubuntu SSH host (`skillops-wsl`) was set up while diagnosing the provider problem. The current docs say Windows needs no WSL, and the working path above does not use it.

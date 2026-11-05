@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "additionalDirectories": ["../../workspace/demo-app"],
+    "allow": [
+      "Bash(python ../../skillops/triage.py show:*)",
+      "Bash(python ../../skillops/work.py check:*)",
+      "Bash(git -C ../../workspace/demo-app status:*)",
+      "Bash(git -C ../../workspace/demo-app diff:*)",
+      "Bash(git -C ../../workspace/demo-app log:*)",
+      "Bash(git -C ../../workspace/demo-app add:*)",
+      "Bash(git -C ../../workspace/demo-app commit:*)",
+      "Read(../../workspace/demo-app/**)",
+      "Edit(../../workspace/demo-app/**)",
+      "Write(../../workspace/demo-app/**)"
+    ],
+    "deny": [
+      "Edit(../../skillops/**)",
+      "Edit(../../state/**)",
+      "Edit(../../agents/**)",
+      "Write(../../skillops/**)",
+      "Write(../../state/**)",
+      "Write(../../agents/**)",
+      "Bash(python ../../skillops/work.py start:*)",
+      "Bash(python ../../skillops/work.py review:*)",
+      "Bash(python ../../skillops/work.py decide:*)",
+      "Bash(python ../../skillops/work.py merge:*)",
+      "Bash(git -C ../../workspace/demo-app checkout:*)",
+      "Bash(git -C ../../workspace/demo-app switch:*)",
+      "Bash(git -C ../../workspace/demo-app merge:*)",
+      "Bash(git -C ../../workspace/demo-app push:*)",
+      "Bash(git -C ../../workspace/demo-app reset:*)",
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(rm:*)",
+      "Bash(curl:*)",
+      "Bash(env:*)",
+      "Bash(printenv:*)",
+      "WebFetch",
+      "WebSearch"
+    ]
+  }
+}
