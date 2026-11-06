@@ -132,7 +132,7 @@ To run the demo again: `python skillops/work.py reset-demo`, then `!reset @skill
 ## Safety model
 
 - **Agents propose, code decides.** Risk, workflow and every status change are decided by `skillops/` code, not by the agents. Risk comes from the person's own words (deploy, production, login, token, delete, `rm -rf`, …), and an agent cannot lower it. High-risk requests go to a "stop, a person decides" workflow.
-- **Two approval gates.** `work.py decide` accepts only `APPROVE SKO-xxxx merge` from a person (not an agent) while the request awaits approval. `work.py merge` refuses anything not `APPROVED`. On top of that, the manager's merge command is set to *ask*, which shows a Switch approval card in the room.
+- **Two approval gates.** `work.py decide` accepts only `APPROVE SKO-xxxx merge` from a person (not an agent) while the request awaits approval. `work.py merge` refuses anything not `APPROVED`, and merges only the commit the review tested, never later commits on the branch. On top of that, the manager's merge command is set to *ask*, which shows a Switch approval card in the room.
 - **No commands from chat.** A command in a message becomes text in the request, never something an agent runs. Each agent has a short allowlist in `.claude/settings.json`; git and tests run with fixed arguments and timeouts, never through a shell.
 - **Evidence, not claims.** Test output is captured by `work.py`, trimmed, and redacted for token/password-like values before it reaches the room.
 - **Nothing leaves the machine.** No push, no deploy; the only consequential action is a local merge in the demo repository.
@@ -145,7 +145,7 @@ More in [docs/09_SECURITY_AND_GUARDRAILS.md](docs/09_SECURITY_AND_GUARDRAILS.md)
 python -m unittest
 ```
 
-41 tests: triage (routing, clarification, risk, malformed drafts, duplicates, state transitions) and the workflow (reproduction, QA gate, review, approvals refused and accepted, changes, rejection, merge, demo reset). No dependencies outside the Python standard library.
+49 tests: triage (routing, clarification, risk, malformed drafts, duplicates, state transitions, UTF-8 input) and the workflow (reproduction, QA gate, review on the right branch, approvals refused and accepted, changes, rejection, merging only the reviewed commit, secret redaction, demo reset). No dependencies outside the Python standard library.
 
 ## Repository layout
 
@@ -169,6 +169,7 @@ state/, workspace/  runtime data (gitignored)
 - **The approver's name is reported by the agent.** `work.py decide` refuses agent names and requires the exact phrase, but it trusts the manager to pass the sender correctly.
 - **Allow rules need a trusted folder.** Each agent's deny rules were verified to block commands (see [docs/LOCAL_TEST_RESULTS.md](docs/LOCAL_TEST_RESULTS.md)), but Claude Code ignores a project's allow rules until the folder is trusted; until then Auto mode decides on unlisted commands.
 - **No cancellation command mid-work.** Use Switch's `!interrupt @skillops-coder`, then `REJECT SKO-xxxx` once it awaits a decision.
+- **Open findings from fuzzing** ([details](docs/LOCAL_TEST_RESULTS.md#fuzzing-2026-11-06)): `work.py start` does not refuse a high-risk request; the "agents cannot approve" check is a plain name match (`@skillops-manager` passes); risk is a keyword list that misses wordings such as `rm -fr` or `git push --force`; and a line break in a summary can fake a status line in the room.
 - **Bare orders skip triage.** "Deploy to production" was refused by the manager directly rather than routed through triage's high-risk workflow, which is covered by unit tests.
 
 ## License

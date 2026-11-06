@@ -126,3 +126,28 @@ Not verified: the coder's `debug` skill in a live run; it needs a bug whose caus
 ### Not used
 
 A WSL Ubuntu SSH host (`skillops-wsl`) was set up while diagnosing the provider problem. The current docs say Windows needs no WSL, and the working path above does not use it.
+
+## Fuzzing (2026-11-06)
+
+A brute-force script (not in the repo) ran against temporary copies, never `state/` or `workspace/`: 5,000 random and malformed drafts, 39 dangerous wordings, 30+ approval messages and senders, 60 random workflow runs of 40 steps on a throwaway demo repo (test results faked as random pass/fail for speed), 18 secret formats, and fake status lines in room text.
+
+Held up: no draft set its own risk, status or id; no other crash in 5,000 drafts; nothing merged without a person's exact `APPROVE`; no status skipped a step.
+
+Fixed, each with a failing test first (`python -m unittest` → `Ran 49 tests … OK`):
+
+| Finding | Before | After |
+|---|---|---|
+| `review` ran the tests on whatever branch was checked out | a failing branch passed review while `main` was checked out | refused unless the repo is on the request's branch with no uncommitted changes |
+| `merge` merged the branch tip, not what was reviewed | commits made after review were merged | `review` records the commit it tested; `merge` takes only that commit |
+| UTF-8 on stdin read as cp1252 on Windows | `李` in a draft: record garbled, then `UnicodeEncodeError` | `triage.py` and `work.py` read stdin as UTF-8; `李` triaged and stored correctly through the CLI |
+| Secret redaction | 7 of 18 formats redacted | 18 of 18 (`"token": "…"`, `Authorization: Bearer …`, `GITHUB_TOKEN=…`, `ghp_…`, `AKIA…`, `user:pass@` URLs, …) |
+
+Open (found, not fixed):
+
+- `work.py start` starts a high-risk (`human-direction`) request.
+- The sender check in `decide` is a name match: `@skillops-manager`, `Skillops-Manager`, ` skillops-coder`, `skillops_manager` and an empty sender were accepted; an empty message id too.
+- Risk is a keyword list: 31 of 39 dangerous wordings came out low, e.g. `rm -fr`, `git push --force`, `truncate table`, `sudo`, `terraform destroy`, `dеploy` with a Cyrillic `е`.
+- A line break in a summary or acceptance criterion fakes a status or approval line in the room message; `@channel` in a summary is posted as-is (not checked whether the bots can notify everyone).
+- Deeply nested JSON or a 5,000-digit number crashes triage with a traceback instead of "Triage refused" (nothing is saved).
+- If a lower-numbered request file is removed, the next request reuses an existing id and overwrites it.
+- Approval phrases match case-insensitively; `CHANGES SKO-xxxx:` followed only by a zero-width space counts as feedback.

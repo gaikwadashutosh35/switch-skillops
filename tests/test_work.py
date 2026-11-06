@@ -1,6 +1,8 @@
+import io
 import json
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -174,6 +176,24 @@ class WorkTest(unittest.TestCase):
         with self.assertRaises(triage.TransitionError):
             self.call(work.review, verdict="pass", notes="ok")
 
+    def test_review_refuses_when_the_repo_is_not_on_the_request_branch(self):
+        # e.g. a second request was started, which checks out its own branch
+        self.to_qa()
+        self.git("checkout", "-q", "main")
+        with self.assertRaises(work.WorkError):
+            self.call(work.review, verdict="pass", notes="ok")
+        self.assertEqual(triage.load(self.id, self.state)["status"], "QA_REVIEW")
+
+    def test_review_refuses_uncommitted_changes(self):
+        self.to_qa()
+        self.write("extra.py", "x = 1\n")
+        with self.assertRaises(work.WorkError):
+            self.call(work.review, verdict="pass", notes="ok")
+
+    def test_review_records_the_commit_it_tested(self):
+        r = self.to_approval()
+        self.assertEqual(r["review"]["commit"], self.git("rev-parse", "HEAD"))
+
     # Human decision
 
     def test_vague_or_wrong_approvals_are_refused(self):
@@ -230,6 +250,45 @@ class WorkTest(unittest.TestCase):
         self.assertEqual(r["status"], "COMPLETED")
         self.assertIn("Fix initials", self.git("log", "main", "--oneline"))
         self.assertEqual(self.git("branch", "--show-current"), "main")
+
+    def test_merge_takes_only_the_reviewed_commit(self):
+        self.to_approval()
+        self.write("unreviewed.py", "x = 1\n")
+        self.commit("Unreviewed change after review")
+        self.call(work.decide, "APPROVE SKO-0001 merge", by="user", message_id="m5")
+        r = self.call(work.merge)
+        self.assertEqual(r["status"], "COMPLETED")
+        log = self.git("log", "main", "--oneline")
+        self.assertIn("Fix initials", log)
+        self.assertNotIn("Unreviewed change", log)
+
+    def test_decide_reads_the_message_as_utf8(self):
+        # Windows' default stdin encoding is cp1252; the agents send UTF-8.
+        seen = []
+        stdin = io.TextIOWrapper(io.BytesIO("CHANGES SKO-0001: Zoë 李 😀".encode("utf-8")), encoding="cp1252")
+        with mock.patch.object(work, "decide", side_effect=lambda i, m, *a: seen.append(m) or self.fail_decide()), \
+                mock.patch.object(sys, "stdin", stdin), mock.patch.object(sys, "stderr", io.StringIO()):
+            work.main(["decide", "SKO-0001", "--by", "user", "--message-id", "m6"])
+        self.assertEqual(seen, ["CHANGES SKO-0001: Zoë 李 😀"])
+
+    @staticmethod
+    def fail_decide():
+        raise work.DecisionError("stop here")
+
+    def test_redaction_covers_common_secret_formats(self):
+        secret = "S3cretValue_42"
+        for text in [f"token: {secret}", f"TOKEN={secret}", f'"token": "{secret}"', f"{{'password': '{secret}'}}",
+                     f"Authorization: Bearer {secret}", f"password = {secret}", f"api_key={secret}",
+                     f"API-KEY: {secret}", f"MY_TOKEN={secret}", f"GITHUB_TOKEN={secret}",
+                     f"secret_key='{secret}'", f"passwd={secret}", f"ghp_{secret}", f"AKIA{secret.upper()}",
+                     f"postgres://admin:{secret}@db/app", f"--password {secret}", f"x-api-key: {secret}",
+                     f"client_secret={secret}"]:
+            with self.subTest(text=text):
+                self.assertNotIn(secret.lower(), work.redact(text).lower())
+
+    def test_redaction_keeps_ordinary_test_output(self):
+        text = "FAIL: test_password_reset (test_auth.AuthTest.test_password_reset)\nAssertionError: 'token' != 'x'"
+        self.assertEqual(work.redact(text), text)
 
     def test_render_shows_status_and_last_evidence(self):
         text = work.render(self.to_qa())

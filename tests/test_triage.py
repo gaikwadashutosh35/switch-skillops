@@ -1,7 +1,10 @@
+import io
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from skillops import triage
 
@@ -161,6 +164,23 @@ class TriageTest(unittest.TestCase):
         text = triage.render(self.submit(draft(steps_to_reproduce=None)))
         self.assertIn("NEEDS_CLARIFICATION", text)
         self.assertIn("reproduce", text)
+
+    # Command line
+
+    def test_cli_reads_the_draft_as_utf8(self):
+        # Windows' default stdin encoding is cp1252; the manager sends UTF-8.
+        text = json.dumps(json.loads(draft(summary="Saving fails for Zoë and 李 😀")), ensure_ascii=False)
+        stdin = io.TextIOWrapper(io.BytesIO(text.encode("utf-8")), encoding="cp1252")
+        seen = []
+
+        def fake_submit(draft_text, **kwargs):
+            seen.append(draft_text)
+            raise triage.DraftError("stop here")
+
+        with mock.patch.object(triage, "submit", fake_submit), mock.patch.object(sys, "stdin", stdin), \
+                mock.patch.object(sys, "stderr", io.StringIO()):
+            triage.main(["new"])
+        self.assertEqual(seen, [text])
 
 
 if __name__ == "__main__":

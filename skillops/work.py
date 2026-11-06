@@ -33,7 +33,18 @@ SEED = ROOT / "demo" / "seed"
 DEMO_REPO = ROOT / "workspace" / "demo-app"
 TEST_COMMAND = [sys.executable, "-m", "unittest"]
 AGENTS = {"skillops-manager", "skillops-coder", "skillops-reviewer"}
-REDACT = re.compile(r"(?i)\b(token|secret|password|api[_-]?key|authorization|bearer)\b(\s*[:=]\s*|\s+)\S+")
+SECRET_NAME = r"[\w-]*(?:token|secret|passw(?:or)?d|api[_-]?key|authorization)[\w-]*"
+REDACT = [
+    # name=value, name: value, "name": "value", Authorization: Bearer value
+    (re.compile(rf"(?i)\b({SECRET_NAME})([\"']?\s*[:=]\s*[\"']?)(?:(?:bearer|basic)\s+)?[^\s\"',}}]+"),
+     r"\1\2[redacted]"),
+    # Bearer value, --password value
+    (re.compile(rf"(?i)(?<![\w-])(bearer|--{SECRET_NAME})(\s+)[^\s\"',}}]+"), r"\1\2[redacted]"),
+    # well-known token shapes on their own
+    (re.compile(r"\b(?:gh[pousr]_|github_pat_|xox[abprs]-|sk-|AKIA)[\w-]{8,}"), "[redacted]"),
+    # user:password@ in a URL
+    (re.compile(r"(://[^/\s:@]+:)[^@\s/]+@"), r"\1[redacted]@"),
+]
 
 
 class WorkError(RuntimeError):
@@ -86,7 +97,13 @@ def run_tests(repo):
     except subprocess.TimeoutExpired:
         code, output = 124, "tests timed out after 120 seconds"
     tail = "\n".join(output.strip().splitlines()[-30:])
-    return code, REDACT.sub(r"\1\2[redacted]", tail)
+    return code, redact(tail)
+
+
+def redact(text):
+    for pattern, replacement in REDACT:
+        text = pattern.sub(replacement, text)
+    return text
 
 
 def start(request_id, repo=DEMO_REPO, state_dir=STATE_DIR):
@@ -139,10 +156,16 @@ def review(request_id, verdict, notes, repo=DEMO_REPO, state_dir=STATE_DIR):
         raise TransitionError(f"{request_id} is {record['status']}; reviews happen in QA_REVIEW")
     if verdict not in ("pass", "changes"):
         raise WorkError("verdict must be 'pass' or 'changes'")
+    if git(repo, "branch", "--show-current") != record["branch"]:
+        raise WorkError(f"the demo repo is not on {record['branch']}")
+    if git(repo, "status", "--porcelain"):
+        raise WorkError("the demo repo has uncommitted changes; only committed work is reviewed")
+    commit = git(repo, "rev-parse", "HEAD")
     code, tail = run_tests(repo)
     if code:
         verdict, notes = "changes", f"tests fail on review. {notes}"
-    record["review"] = {"at": now(), "verdict": verdict, "notes": notes, "exit_code": code, "output_tail": tail}
+    record["review"] = {"at": now(), "verdict": verdict, "notes": notes, "commit": commit,
+                        "exit_code": code, "output_tail": tail}
     if verdict == "pass":
         transition(record, "AWAITING_HUMAN_APPROVAL")
     else:
@@ -191,8 +214,12 @@ def merge(request_id, repo=DEMO_REPO, state_dir=STATE_DIR):
     if record["status"] != "APPROVED" or record.get("approval", {}).get("action") != "merge":
         raise WorkError(f"{request_id} is {record['status']}; merging needs `APPROVE {request_id} merge` "
                         "from a person first")
+    reviewed = record.get("review", {}).get("commit")
+    if not reviewed:
+        raise WorkError(f"{request_id} has no reviewed commit to merge")
     git(repo, "checkout", "-q", "main")
-    git(repo, "merge", "-q", "--no-ff", record["branch"], "-m",
+    # The reviewed commit, not the branch: anything committed after review is not merged.
+    git(repo, "merge", "-q", "--no-ff", reviewed, "-m",
         f"Merge {request_id}: {record['summary']} (approved by {record['approval']['by']})")
     record["merge"] = {"at": now(), "commit": git(repo, "rev-parse", "--short", "HEAD")}
     transition(record, "COMPLETED")
@@ -252,6 +279,7 @@ def main(argv=None):
             p.add_argument("--by", required=True)
             p.add_argument("--message-id", required=True)
     args = parser.parse_args(argv)
+    sys.stdin.reconfigure(encoding="utf-8")  # agents send UTF-8; Windows defaults to cp1252
     sys.stdout.reconfigure(encoding="utf-8")
     try:
         if args.cmd == "reset-demo":

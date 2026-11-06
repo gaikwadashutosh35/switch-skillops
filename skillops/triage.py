@@ -202,6 +202,7 @@ def main(argv=None):
     show = sub.add_parser("show", help="print a request")
     show.add_argument("id")
     args = parser.parse_args(argv)
+    sys.stdin.reconfigure(encoding="utf-8")  # the manager sends UTF-8; Windows defaults to cp1252
     try:
         record = submit(sys.stdin.read(), request_id=args.id) if args.cmd == "new" else load(args.id)
     except (DraftError, TransitionError) as exc:

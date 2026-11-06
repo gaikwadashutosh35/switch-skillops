@@ -50,7 +50,7 @@ Show the final `COMPLETED` report with the merge commit. Optionally show `git -C
 ### 3:30–4:00 — Close
 - Switch put three agents and a person in one room, carried the handoffs and showed the approval card.
 - The code, not the agents, decides risk, state and when a merge is allowed.
-- Repository link, `python -m unittest` (41 tests), known limitations in the README.
+- Repository link, `python -m unittest` (49 tests), known limitations in the README.
 
 ## Narration points
 
