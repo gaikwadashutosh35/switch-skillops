@@ -129,7 +129,7 @@ A WSL Ubuntu SSH host (`skillops-wsl`) was set up while diagnosing the provider 
 
 ## Fuzzing (2026-11-06)
 
-A brute-force script (not in the repo) ran against temporary copies, never `state/` or `workspace/`: 5,000 random and malformed drafts, 39 dangerous wordings, 30+ approval messages and senders, 60 random workflow runs of 40 steps on a throwaway demo repo (test results faked as random pass/fail for speed), 18 secret formats, and fake status lines in room text.
+A brute-force script (not in the repo) ran against temporary copies, never `state/` or `workspace/`: 5,000 random and malformed drafts, 39 dangerous wordings, 25 approval messages and senders, 60 random workflow runs of 40 steps on a throwaway demo repo (test results faked as random pass/fail for speed), 18 secret formats, and fake status lines in room text.
 
 Held up: no draft set its own risk, status or id; no other crash in 5,000 drafts; nothing merged without a person's exact `APPROVE`; no status skipped a step.
 
