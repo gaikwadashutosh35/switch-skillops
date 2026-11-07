@@ -141,11 +141,12 @@ Fixed, each with a failing test first (`python -m unittest` → `Ran 49 tests �
 | `merge` merged the branch tip, not what was reviewed | commits made after review were merged | `review` records the commit it tested; `merge` takes only that commit |
 | UTF-8 on stdin read as cp1252 on Windows | `李` in a draft: record garbled, then `UnicodeEncodeError` | `triage.py` and `work.py` read stdin as UTF-8; `李` triaged and stored correctly through the CLI |
 | Secret redaction | 7 of 18 formats redacted | 18 of 18 (`"token": "…"`, `Authorization: Bearer …`, `GITHUB_TOKEN=…`, `ghp_…`, `AKIA…`, `user:pass@` URLs, …) |
+| `work.py start` started high-risk (`human-direction`) requests (fixed 2026-11-07) | started in 15 of 15 random runs | refused; the request stays `TRIAGED` for a person to handle |
+| The sender check in `decide` was an exact name match (fixed 2026-11-07) | `@skillops-manager`, `Skillops-Manager`, ` skillops-coder`, `skillops_manager` and an empty sender could approve | names are normalised (trim, `@`, case, `_`) before the check; empty is refused (`Ran 50 tests … OK`) |
 
 Open (found, not fixed):
 
-- `work.py start` starts a high-risk (`human-direction`) request.
-- The sender check in `decide` is a name match: `@skillops-manager`, `Skillops-Manager`, ` skillops-coder`, `skillops_manager` and an empty sender were accepted; an empty message id too.
+- `decide` accepts an empty message id.
 - Risk is a keyword list: 31 of 39 dangerous wordings came out low, e.g. `rm -fr`, `git push --force`, `truncate table`, `sudo`, `terraform destroy`, `dеploy` with a Cyrillic `е`.
 - A line break in a summary or acceptance criterion fakes a status or approval line in the room message; `@channel` in a summary is posted as-is (not checked whether the bots can notify everyone).
 - Deeply nested JSON or a 5,000-digit number crashes triage with a traceback instead of "Triage refused" (nothing is saved).

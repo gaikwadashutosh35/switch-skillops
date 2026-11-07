@@ -109,6 +109,9 @@ def redact(text):
 def start(request_id, repo=DEMO_REPO, state_dir=STATE_DIR):
     """TRIAGED -> PLANNED, on a fresh branch in the demo repo."""
     record = load(request_id, state_dir)
+    if record.get("risk") == "high":
+        raise WorkError(f"{request_id} is high risk ({record['workflow']['reason']}); "
+                        "SkillOps does not start it, a person handles it")
     transition(record, "PLANNED")
     record["branch"] = f"sko-{request_id[4:]}"
     git(repo, "checkout", "-q", "main")
@@ -178,8 +181,9 @@ def review(request_id, verdict, notes, repo=DEMO_REPO, state_dir=STATE_DIR):
 def decide(request_id, message, by, message_id, repo=DEMO_REPO, state_dir=STATE_DIR):
     """Apply a person's decision, given their message word for word."""
     # ponytail: the agent reports the sender; trust it, but never accept an agent's own name
-    if by in AGENTS or by.startswith(("skillops-", "switch")):
-        raise DecisionError(f"{by} is an agent; only a person can decide")
+    name = by.strip().lstrip("@").lower().replace("_", "-")
+    if not name or name in AGENTS or name.startswith(("skillops-", "switch")):
+        raise DecisionError(f"{by!r} is not a person's name; only a person can decide")
     text = re.sub(r"^(\s*@\S+\s+)+", "", message).strip()
     hint = (f"Reply exactly `APPROVE {request_id} merge`, `CHANGES {request_id}: <what to change>` "
             f"or `REJECT {request_id}`.")

@@ -3,11 +3,11 @@
 ## Official deliverables
 
 - [x] Public project repository. *(https://github.com/gaikwadashutosh35/switch-skillops)*
-- [ ] Short demo video showing the workflow running.
+- [x] Short demo video showing the workflow running. *(1:25, https://youtu.be/NwBfaLTQvgw)*
 - [x] README explains which agents are connected.
 - [x] README explains how the Mattermost channel/room is configured.
 - [x] README explains how to run the project.
-- [ ] Submit before the official deadline: November 7, 2026, 11:59 PM IST (re-check live page).
+- [x] Submitted before the official deadline: November 7, 2026, 11:59 PM IST. *(submitted on November 5)*
 
 ## Product and Switch proof
 
@@ -21,11 +21,11 @@
 
 ## Reproducibility
 
-- [ ] Fresh clone tested. *(code part passed from the public repo: tests, reset-demo; Console/agent/room steps not repeated)*
+- [x] Fresh clone tested. *(public repo, November 7: all tests pass, reset-demo works, tree stays clean; the Console/agent/room steps were not repeated from scratch)*
 - [x] Prerequisites and versions documented.
 - [x] `.env.example` contains placeholders only.
-- [ ] No secrets committed. *(scanned before each commit; re-check before making the repo public)*
-- [ ] Setup instructions are exact and current. *(verified on Windows only; not yet from a fresh clone)*
+- [x] No secrets committed. *(staged changes scanned before each commit)*
+- [ ] Setup instructions are exact and current. *(verified on Windows only; not on macOS or Linux)*
 - [x] Sample task and reset instructions included.
 - [x] Tests and exact outcomes documented.
 - [x] Known limitations and manual steps documented.
@@ -40,24 +40,21 @@
 - [x] Human approval gate tested.
 - [x] No arbitrary shell execution from chat input. *(deny rules verified headless per agent; see LOCAL_TEST_RESULTS)*
 - [x] No auto-merge or deployment.
-- [x] Logs redact secrets.
+- [x] Logs redact secrets. *(18 common formats, tested)*
+- [x] Brute-force tested. *(fuzzing; fixed and open findings in LOCAL_TEST_RESULTS)*
 
 ## Presentation
 
-- [ ] Demo follows one real bug/feature end-to-end.
-- [ ] Show Mattermost + Switch-connected agent.
-- [ ] Show workflow routing and why it was selected.
-- [ ] Show actual test output and QA evidence.
-- [ ] Show explicit human approval.
-- [ ] Keep video concise and legible.
-- [ ] Verify public repository access from a logged-out/incognito browser if possible.
+- [x] Demo follows one real bug/feature end-to-end.
+- [x] Show Mattermost + Switch-connected agent.
+- [x] Show workflow routing and why it was selected.
+- [x] Show actual test output and QA evidence.
+- [x] Show explicit human approval.
+- [x] Keep video concise and legible. *(1:25, 1080p, captioned)*
+- [x] Verify public repository access from a logged-out browser. *(opens without signing in)*
 
 ## Optional side tracks
 
-- [ ] Blog post explaining setup, workflow, what worked and what did not (Best Blog).
-- [ ] If pursuing Best Core Contribution: choose an issue labelled `hackathon`, comment with proposed approach, wait for assignment, read CONTRIBUTING.md and sign required CLA, work only on assigned issue, open PR within hackathon window and reference `Closes #number`.
-- [ ] Share a genuine project post with `#HowISwitch` if desired.
-
-## Final pre-submit audit
-
-Ask a person unfamiliar with the project to follow the README from a clean environment. If they cannot reproduce the core flow, fix the docs or reduce setup complexity before adding features.
+- [ ] Blog post explaining setup, workflow, what worked and what did not (Best Blog). *(drafted; publishing is the author's step)*
+- [ ] Best Core Contribution. *(not pursued: every `hackathon` issue was already assigned with open pull requests; three bug reports filed upstream instead: switch#1510, #1511, #1512)*
+- [ ] Share a genuine project post with `#HowISwitch`. *(drafted)*

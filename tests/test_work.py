@@ -113,6 +113,15 @@ class WorkTest(unittest.TestCase):
         self.assertEqual(r["branch"], "sko-0001")
         self.assertEqual(self.git("branch", "--show-current"), "sko-0001")
 
+    def test_start_refuses_a_high_risk_request(self):
+        risky = triage.submit(json.dumps({"request_text": "Deploy the fix to production tonight.",
+                                          "summary": "Deploy to production", "type": "bug",
+                                          "steps_to_reproduce": ["x"]}), self.state)
+        self.assertEqual(risky["risk"], "high")
+        with self.assertRaises(work.WorkError):
+            work.start(risky["id"], repo=self.repo, state_dir=self.state)
+        self.assertEqual(triage.load(risky["id"], self.state)["status"], "TRIAGED")
+
     def test_start_refuses_request_that_needs_clarification(self):
         unclear = triage.submit(json.dumps({"request_text": "x", "summary": "x", "type": "feature"}),
                                 self.state)
@@ -206,8 +215,11 @@ class WorkTest(unittest.TestCase):
 
     def test_agents_cannot_approve(self):
         self.to_approval()
-        with self.assertRaises(work.DecisionError):
-            self.call(work.decide, "APPROVE SKO-0001 merge", by="skillops-coder", message_id="m1")
+        for by in ["skillops-coder", "@skillops-manager", "Skillops-Manager", "SKILLOPS-CODER", " skillops-coder",
+                   "skillops_reviewer", "@switch", "Switch-bot", "", "  "]:
+            with self.subTest(by=by):
+                with self.assertRaisesRegex(work.DecisionError, "only a person"):
+                    self.call(work.decide, "APPROVE SKO-0001 merge", by=by, message_id="m1")
 
     def test_approval_before_review_is_refused(self):
         self.call(work.start)

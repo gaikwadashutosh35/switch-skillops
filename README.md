@@ -4,6 +4,10 @@
 
 Built for the Flip the Switch hackathon, *Best Business Workflow* track.
 
+**▶ [Watch the 1:25 demo](https://youtu.be/NwBfaLTQvgw)**, recorded from a real run: bug report → triage → failing test → fix → independent review → a refused "looks good" → exact approval → permission card → merge.
+
+[![A casual "looks good, merge it" is refused in the skillops-triage room; only the exact approval from a person counts](docs/media/demo-refused-approval.png)](https://youtu.be/NwBfaLTQvgw)
+
 ## What it does
 
 A teammate posts a bug report or feature request in the `skillops-triage` channel. Three Claude Code agents, connected through [Switch](https://github.com/sandbox-quantum/switch), take it from there, in the room:
@@ -145,7 +149,7 @@ More in [docs/09_SECURITY_AND_GUARDRAILS.md](docs/09_SECURITY_AND_GUARDRAILS.md)
 python -m unittest
 ```
 
-49 tests: triage (routing, clarification, risk, malformed drafts, duplicates, state transitions, UTF-8 input) and the workflow (reproduction, QA gate, review on the right branch, approvals refused and accepted, changes, rejection, merging only the reviewed commit, secret redaction, demo reset). No dependencies outside the Python standard library.
+50 tests: triage (routing, clarification, risk, malformed drafts, duplicates, state transitions, UTF-8 input) and the workflow (high-risk requests not started, reproduction, QA gate, review on the right branch, approvals refused and accepted, agent-like senders refused, changes, rejection, merging only the reviewed commit, secret redaction, demo reset). No dependencies outside the Python standard library.
 
 ## Repository layout
 
@@ -156,7 +160,8 @@ skillops/         triage.py (triage, risk, routing, state) and work.py (gated wo
 tests/            unit tests for both
 demo/seed/        the demo app with its bug; reset-demo copies it to workspace/demo-app
 switch/           the Switch room template
-docs/             hackathon requirements, decisions, test results, demo script, security
+docs/             decisions, test results, demo script, security, screenshots (media/)
+docs/planning/    the pre-build requirements, plan and prompt, kept for the record
 state/, workspace/  runtime data (gitignored)
 ```
 
@@ -169,7 +174,7 @@ state/, workspace/  runtime data (gitignored)
 - **The approver's name is reported by the agent.** `work.py decide` refuses agent names and requires the exact phrase, but it trusts the manager to pass the sender correctly.
 - **Allow rules need a trusted folder.** Each agent's deny rules were verified to block commands (see [docs/LOCAL_TEST_RESULTS.md](docs/LOCAL_TEST_RESULTS.md)), but Claude Code ignores a project's allow rules until the folder is trusted; until then Auto mode decides on unlisted commands.
 - **No cancellation command mid-work.** Use Switch's `!interrupt @skillops-coder`, then `REJECT SKO-xxxx` once it awaits a decision.
-- **Open findings from fuzzing** ([details](docs/LOCAL_TEST_RESULTS.md#fuzzing-2026-11-06)): `work.py start` does not refuse a high-risk request; the "agents cannot approve" check is a plain name match (`@skillops-manager` passes); risk is a keyword list that misses wordings such as `rm -fr` or `git push --force`; and a line break in a summary can fake a status line in the room.
+- **Open findings from fuzzing** ([details](docs/LOCAL_TEST_RESULTS.md#fuzzing-2026-11-06)): risk is a keyword list that misses wordings such as `rm -fr` or `git push --force`; and a line break in a summary can fake a status line in the room.
 - **Bare orders skip triage.** "Deploy to production" was refused by the manager directly rather than routed through triage's high-risk workflow, which is covered by unit tests.
 
 ## License
@@ -178,5 +183,6 @@ state/, workspace/  runtime data (gitignored)
 
 ## Links
 
+- Demo video (1:25): https://youtu.be/NwBfaLTQvgw
 - Hackathon: https://www.wemakedevs.org/hackathons/switch
 - Switch: https://github.com/sandbox-quantum/switch · docs: https://docs.switchagents.ai/
